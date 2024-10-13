@@ -35,7 +35,8 @@ services:
       - certacme:/var/www/certbot/:ro
       - cert:/etc/nginx/ssl/:ro
     ports:
-      - 8080:80
+      - 80:80
+      - 443:443
 
   cert:
     image: certbot/certbot:latest
