@@ -44,6 +44,12 @@ services:
       - certacme:/var/www/certbot/:rw
       - cert:/etc/letsencrypt/:rw
 
+  wt:
+    image: containrrr/watchtower:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   db:
   matomo:
