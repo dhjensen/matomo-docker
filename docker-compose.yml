@@ -12,7 +12,7 @@ services:
       - .env
 
   app:
-    image: matomo:5.1.2-fpm-alpine
+    image: matomo:5.2.1-fpm-alpine
     restart: always
     links:
       - db
