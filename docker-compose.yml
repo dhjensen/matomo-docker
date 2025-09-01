@@ -33,12 +33,13 @@ services:
 
   anubis:
     image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
+    restart: always
     environment:
-      - BIND=:8080
+      - BIND=:8081
       - TARGET=https://web:4433
       - TARGET_INSECURE_SKIP_VERIFY=${ANUBIS_TARGET_INSECURE_SKIP_VERIFY}
     ports:
-      - 8080:8080
+      - 8081:8080
 
   web:
     image: nginx:alpine
