@@ -2,6 +2,14 @@
 
 Matomo docker compose files.
 
+It starts the following services:
+* db - Mariadb
+* app - Matomo analytics
+* anubis - Http request scanner to protect from scraper bots
+* web - Nginx reverse proxy
+* cert - Certbot to request/renew certificates from [letsencrypt](https://letsencrypt.org/)
+* wt - Watchtower to automatically update to new versions of docker images
+
 ## Variables .env file
 
 Example:
@@ -10,7 +18,9 @@ Example:
 MYSQL_PASSWORD=changeme
 MYSQL_DATABASE=matomo
 MYSQL_USER=matomo
-MATOMO_VERSION=5.3.2
+ANUBIS_VERSION=1.21.3
+ANUBIS_TARGET_INSECURE_SKIP_VERIFY=true
+MATOMO_VERSION=5.4.0
 MATOMO_DATABASE_HOST=db
 MATOMO_DATABASE_ADAPTER=mysql
 MATOMO_DATABASE_TABLES_PREFIX=matomo_
