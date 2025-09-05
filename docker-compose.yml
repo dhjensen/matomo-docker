@@ -1,24 +1,21 @@
+name: matomo-docker
+
 services:
-  db:
-    image: mariadb:lts
-    command: --max-allowed-packet=64MB
-    restart: always
-    volumes:
-      - db:/var/lib/mysql:Z
+  anubis:
+    image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
     environment:
-      - MARIADB_AUTO_UPGRADE
-      - MARIADB_DISABLE_UPGRADE_BACKUP
-      - MARIADB_INITDB_SKIP_TZINFO
-      - MARIADB_ROOT_PASSWORD
-      - MYSQL_PASSWORD
-      - MYSQL_DATABASE
-      - MYSQL_USER
+      - BIND=:8081
+      - TARGET=https://web:4433
+      - TARGET_INSECURE_SKIP_VERIFY=${ANUBIS_TARGET_INSECURE_SKIP_VERIFY}
+    ports:
+      - "127.0.0.1:8081:8080"
+    networks:
+      - frontend
+      - app
+    restart: always
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
-    restart: always
-    links:
-      - db
     volumes:
       # - ./config:/var/www/html/config:z
       # - ./logs:/var/www/html/logs:z
@@ -30,41 +27,68 @@ services:
       - MATOMO_DATABASE_USERNAME
       - MATOMO_DATABASE_PASSWORD
       - MATOMO_DATABASE_DBNAME
-
-  anubis:
-    image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
+    networks:
+      - app
+      - db
     restart: always
-    environment:
-      - BIND=:8081
-      - TARGET=https://web:4433
-      - TARGET_INSECURE_SKIP_VERIFY=${ANUBIS_TARGET_INSECURE_SKIP_VERIFY}
-    ports:
-      - 8081:8080
-
-  web:
-    image: nginx:alpine
-    restart: always
-    volumes:
-      - matomo:/var/www/html:z,ro
-      # see https://github.com/matomo-org/matomo-nginx
-      - ./matomo-anubis.conf:/etc/nginx/conf.d/default.conf:z,ro
-      - certacme:/var/www/certbot/:ro
-      - cert:/etc/nginx/ssl/:ro
-    ports:
-      - 80:80
-      - 443:443
+    links:
+      - db
 
   cert:
-    image: certbot/certbot:latest
+    image: certbot/certbot:v${CERTBOT_VERSION}
     volumes:
       - certacme:/var/www/certbot/:rw
       - cert:/etc/letsencrypt/:rw
 
-  wt:
-    image: containrrr/watchtower:latest
+  db:
+    image: mariadb:${MARIADB_VERSION}
+    volumes:
+      - db:/var/lib/mysql:Z
+    environment:
+      - MARIADB_AUTO_UPGRADE
+      - MARIADB_DISABLE_UPGRADE_BACKUP
+      - MARIADB_INITDB_SKIP_TZINFO
+      - MARIADB_ROOT_PASSWORD
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_USER
+    networks:
+      - db
+    command: --max-allowed-packet=64MB
     restart: always
+
+  web:
+    image: nginx:${NGINX_VERSION}-alpine
+    volumes:
+      - matomo:/var/www/html:z,ro
+      # see https://github.com/matomo-org/matomo-nginx
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:z,ro
+      - certacme:/var/www/certbot/:ro
+      - cert:/etc/nginx/ssl/:ro
+    ports:
+      - "${NGINX_INTERFACE}:80:80"
+      - "${NGINX_INTERFACE}:443:443"
+    networks:
+      - beszel-docker_mon
+      - frontend
+      - app
+    restart: always
+
+  wt:
+    image: containrrr/watchtower:${WATCHTOWER_VERSION}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+networks:
+  beszel-docker_mon:
+    external: true
+  frontend:
+    driver: bridge
+  app:
+    driver: bridge
+  db:
+    driver: bridge
 
 volumes:
   db:
