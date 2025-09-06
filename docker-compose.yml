@@ -5,20 +5,17 @@ services:
     image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
     environment:
       - BIND=:8081
-      - TARGET=https://web:4433
-      - TARGET_INSECURE_SKIP_VERIFY=${ANUBIS_TARGET_INSECURE_SKIP_VERIFY}
+      - TARGET=http://web:80
     ports:
       - "127.0.0.1:8081:8080"
     networks:
-      - frontend
+      - nginx-proxy-manager_frontend
       - app
     restart: always
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
     volumes:
-      # - ./config:/var/www/html/config:z
-      # - ./logs:/var/www/html/logs:z
       - matomo:/var/www/html:z
     environment:
       - MATOMO_DATABASE_HOST
@@ -33,12 +30,6 @@ services:
     restart: always
     links:
       - db
-
-  cert:
-    image: certbot/certbot:v${CERTBOT_VERSION}
-    volumes:
-      - certacme:/var/www/certbot/:rw
-      - cert:/etc/letsencrypt/:rw
 
   db:
     image: mariadb:${MARIADB_VERSION}
@@ -63,13 +54,7 @@ services:
       - matomo:/var/www/html:z,ro
       # see https://github.com/matomo-org/matomo-nginx
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:z,ro
-      - certacme:/var/www/certbot/:ro
-      - cert:/etc/nginx/ssl/:ro
-    ports:
-      - "${NGINX_INTERFACE}:80:80"
-      - "${NGINX_INTERFACE}:443:443"
     networks:
-      - beszel-docker_mon
       - frontend
       - app
     restart: always
@@ -81,7 +66,8 @@ services:
     restart: always
 
 networks:
-  beszel-docker_mon:
+  nginx-proxy-manager_frontend:
+    driver: bridge
     external: true
   frontend:
     driver: bridge
@@ -93,5 +79,3 @@ networks:
 volumes:
   db:
   matomo:
-  cert:
-  certacme:
