@@ -3,6 +3,7 @@ name: matomo-docker
 services:
   anubis:
     image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
+    container_name: anubis
     environment:
       - BIND=:8081
       - TARGET=http://web:80
@@ -11,10 +12,11 @@ services:
     networks:
       - nginx-proxy-manager_frontend
       - app
-    restart: always
+    restart: unless-stopped
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
+    container_name: app
     volumes:
       - matomo:/var/www/html:z
     environment:
@@ -27,12 +29,11 @@ services:
     networks:
       - app
       - db
-    restart: always
-    links:
-      - db
+    restart: unless-stopped
 
   db:
     image: mariadb:${MARIADB_VERSION}
+    container_name: db
     volumes:
       - db:/var/lib/mysql:Z
     environment:
@@ -46,10 +47,11 @@ services:
     networks:
       - db
     command: --max-allowed-packet=64MB
-    restart: always
+    restart: unless-stopped
 
   web:
     image: nginx:${NGINX_VERSION}-alpine
+    container_name: web
     volumes:
       - matomo:/var/www/html:z,ro
       # see https://github.com/matomo-org/matomo-nginx
@@ -57,13 +59,7 @@ services:
     networks:
       - frontend
       - app
-    restart: always
-
-  wt:
-    image: containrrr/watchtower:${WATCHTOWER_VERSION}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: always
+    restart: unless-stopped
 
 networks:
   nginx-proxy-manager_frontend:
