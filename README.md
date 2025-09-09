@@ -8,14 +8,22 @@ It starts the following services:
 * anubis - Http request scanner to protect from scraper bots
 * web - Nginx reverse proxy
 
+## botPolicies.yml
+
+Defined my own `botPolicies.yml` to disable [Thoth](https://github.com/TecharoHQ/thoth-proto)
+
 ## .env example
+
+For ANUBIS_ED25519_PRIVATE_KEY_HEX you can use `openssl rand -hex 32`
 
 ```bash
 MYSQL_PASSWORD=changeme
 MYSQL_DATABASE=matomo
 MYSQL_USER=matomo
 ANUBIS_VERSION=version
-ANUBIS_TARGET_INSECURE_SKIP_VERIFY=true
+ANUBIS_REDIRECT_DOMAINS=domain,domain
+ANUBIS_ED25519_PRIVATE_KEY_HEX=hex
+ANUBIS_POLICY_FNAME=filename
 NGINX_VERSION=version
 MATOMO_VERSION=version
 MATOMO_DATABASE_HOST=db
