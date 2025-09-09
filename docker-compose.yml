@@ -5,13 +5,12 @@ services:
     image: ghcr.io/techarohq/anubis:v${ANUBIS_VERSION}
     container_name: anubis
     volumes:
-      - ./botPolicies.yml:/botPolicies.yaml
+      - ./botPolicies.yml:/doc/botPolicies.yaml
     environment:
       - BIND=:8081
       - TARGET=http://web:80
       - REDIRECT_DOMAINS=${ANUBIS_REDIRECT_DOMAINS}
       - ED25519_PRIVATE_KEY_HEX=${ANUBIS_ED25519_PRIVATE_KEY_HEX}
-      - POLICY_FNAME=${ANUBIS_POLICY_FNAME}
     ports:
       - "127.0.0.1:8081:8080"
     networks:
