@@ -41,6 +41,7 @@ services:
     restart: unless-stopped
     labels:
       - wud.tag.include=^\d+\.\d+\.\d+-fpm-alpine$$
+      - wud.watch.digest=true
 
   db:
     image: mariadb:${MARIADB_VERSION}
