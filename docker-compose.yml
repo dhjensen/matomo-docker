@@ -16,11 +16,15 @@ services:
     ports:
       - "127.0.0.1:8081:8080"
     networks:
+      - backend
       - nginx-proxy-manager_frontend
       - app
     restart: unless-stopped
     labels:
       - wud.tag.include=^v\d+\.\d+\.\d+$$
+      - traefik.enable=true
+      - traefik.http.routers.anubis-matomo-docker.rule=Host(`matomo.dhjensen.dk`)
+      - traefik.http.routers.anubis-matomo-docker.middlewares=""
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
@@ -42,6 +46,7 @@ services:
     labels:
       - wud.tag.include=^\d+\.\d+\.\d+-fpm-alpine$$
       - wud.watch.digest=true
+      - traefik.enable=false
 
   db:
     image: mariadb:${MARIADB_VERSION}
@@ -63,6 +68,7 @@ services:
     restart: unless-stopped
     labels:
       - wud.watch.digest=true
+      - traefik.enable=false
 
   web:
     image: nginx:${NGINX_VERSION}-alpine
@@ -78,8 +84,12 @@ services:
     restart: unless-stopped
     labels:
       - wud.tag.include=^\d+\.\d+\.\d+-alpine$$
+      - traefik.enable=false
 
 networks:
+  backend:
+    external: true
+    driver: bridge
   nginx-proxy-manager_frontend:
     driver: bridge
     external: true
