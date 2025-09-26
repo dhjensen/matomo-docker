@@ -26,6 +26,7 @@ services:
       - traefik.http.routers.anubis-matomo-docker.rule=Host(`matomo.dhjensen.dk`)
       - traefik.http.middlewares.ipallowall.ipAllowList.sourceRange=0.0.0.0/0
       - traefik.http.routers.anubis-matomo-docker.middlewares=ipallowall@docker
+      - traefik.http.services.anubis-matomo-docker.Loadbalancer.server.port=8081
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
