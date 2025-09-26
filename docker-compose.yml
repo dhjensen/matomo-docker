@@ -24,7 +24,7 @@ services:
       - wud.tag.include=^v\d+\.\d+\.\d+$$
       - traefik.enable=true
       - traefik.http.routers.anubis-matomo-docker.rule=Host(`matomo.dhjensen.dk`)
-      - traefik.http.routers.anubis-matomo-docker.middlewares=""
+      - traefik.http.routers.anubis-matomo-docker.entryPoints=web,websecure
 
   app:
     image: matomo:${MATOMO_VERSION}-fpm-alpine
