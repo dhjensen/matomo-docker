@@ -23,6 +23,7 @@ services:
       - wud.tag.include=^v\d+\.\d+\.\d+$$
       - traefik.enable=true
       - traefik.http.routers.anubis-matomo-docker.rule=Host(`matomo.dhjensen.dk`)
+      - traefik.http.routers.anubis-matomo-docker.tls.certresolver=cloudflare
       - traefik.http.services.anubis-matomo-docker.Loadbalancer.server.port=8081
 
   app:
