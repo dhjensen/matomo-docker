@@ -17,15 +17,12 @@ services:
       - "127.0.0.1:8081:8080"
     networks:
       - backend
-      - nginx-proxy-manager_frontend
       - app
     restart: unless-stopped
     labels:
       - wud.tag.include=^v\d+\.\d+\.\d+$$
       - traefik.enable=true
       - traefik.http.routers.anubis-matomo-docker.rule=Host(`matomo.dhjensen.dk`)
-      - traefik.http.middlewares.ipallowall.ipAllowList.sourceRange=0.0.0.0/0
-      - traefik.http.routers.anubis-matomo-docker.middlewares=ipallowall@docker
       - traefik.http.services.anubis-matomo-docker.Loadbalancer.server.port=8081
 
   app:
@@ -92,9 +89,6 @@ networks:
   backend:
     external: true
     driver: bridge
-  nginx-proxy-manager_frontend:
-    driver: bridge
-    external: true
   frontend:
     driver: bridge
   app:
